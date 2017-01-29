@@ -1,0 +1,454 @@
+---
+title: "hw1"
+author: "Shweta Singhal"
+date: "February 14, 2016"
+output: html_document
+---
+
+Ans 1.a)
+Exponential family has the probability distribution given as:
+$$P(x|\eta)=h(x)exp(\eta.T(x)-A(\eta))$$
+$$E[T(X)|\eta]=\bigtriangledown A(\eta)$$
+
+Also we know that sum of all the probabilities are 1, we can write this as :
+$$\int\limits_{-\infty}^{+\infty}p (x)dx=1$$
+$$\int\limits h(x)exp(\eta.T(x)-A(\eta))dx=1$$
+taking derivative both sides
+$$\frac{\partial}{\partial \eta} \int h(x)exp(\eta.T(x))dx = \frac{\partial}{\partial\eta} exp(A(\eta))$$
+$$\frac{\int T(x)h(x)exp(\eta.T(x))dx}{exp(A(\eta))} = \grave A(\eta)$$
+Using the equation:
+$$E[g(x)] = \int g(x)P(x)dx$$
+$$f(x) = h(x)exp(\eta.T(x) - A(\eta))$$
+Hence we get,
+$$E[T(x)] = (\grave A(\eta))$$ 
+
+b)
+Exponential family can be written as :
+$$X\sim N(\mu,\sigma^2)$$
+$$P(x|\mu) = \frac{1}{\sqrt(2 \pi \sigma^2)}exp(\frac{-(x-\mu)^2}{2\sigma^2})$$
+$$P(x|\mu) = \frac{1}{\sqrt(2 \pi\sigma^2)}exp(\frac{-(\mu^2+2x\mu+x^2)}{2\sigma^2})$$
+
+Here from the above equation, 
+$$h(x) = \frac{1}{\sqrt(2\pi)}exp(\frac{-x^2}{2\sigma^2})$$
+$$\eta(\mu) = \mu$$
+$$T(x) = \frac{x}{\sigma^2}$$
+$$A(\sigma) = -\frac{\mu^2}{2\sigma^2} - log \sigma$$
+$$(\grave A(\mu)) = \frac{\mu}{2\sigma^2}$$
+$$E[T(x)] = \frac{\mu}{2\sigma^2}$$
+$$(A'(\mu)) = E[T(x)]$$
+Hence Proved.
+
+Ans.2
+
+$$P(X;\lambda)=(\lambda^k exp(-\lambda))/k!$$
+(a)
+$$=exp(ln(\lambda^k exp(-\lambda)))/k!$$
+$$=exp((kln\lambda-\lambda))/k!$$
+So
+Natural parameter is $$\eta = ln\lambda$$
+
+Sufficient statistics is $$T(X=k) = k$$
+
+b)
+Let one of the prior be Jeffery's prior
+$$I(\lambda) = 1/k!*E[(\frac{d}{d\lambda}log(\lambda^k exp(-\lambda))^2]$$
+$$= 1/k!*E[(\frac{d}{d\lambda}(klog\lambda)-\lambda)^2]$$
+$$= E[\frac{k}{\lambda^2}]$$
+$$= 1/\lambda $$
+
+So, Jeffery's prior $P(\lambda) = \sqrt(I(\lambda))$
+$$P(\lambda) = \sqrt(1/\lambda)$$
+
+This is an improper prior, because its integral diverges.
+
+$\textbf  Posterior:$
+$$P(\lambda|x_1,\ldots,x_n) = Gamma(\frac{1}{2} + \sum_{i=1}^{n}x_i, n)$$
+Posterior is proper even though its prior is improper.
+
+
+Another prior can be Uniform Prior- $$ p(\lambda)=c$$
+where c is any constant, This prior is also improper prior.
+
+$\textbf  Posterior\ for\  Uniform \ Prior:$
+$$P(\lambda|x_1,\ldots,x_n) = Gamma(\frac{1}{2} + \sum_{i=1}^{n}x_i, n)$$
+
+Ans.3)
+$$p(x_1,\ldots,x_n|\mu) = (\frac{1}{\sqrt(2\pi\sigma^2)})^n exp(\frac{-1}{2\sigma^2}\sum(x_i - \mu)^2)$$
+Here mean is distributed with Uniform distribution:
+$$\mu \sim Unif(a,b)$$
+$$\implies p(\mu) = \frac{1}{b-a} \ \  \forall \mu \in [a,b]$$
+$$p(\mu|x1,\ldots,x_n;\sigma^2,a,b) = \frac{p(x1,\ldots,x_n|\mu;\sigma^2,a,b)p(\mu)}{\int p(p(\mu|x1,\ldots,x_n;\sigma^2,a,b))p(\mu)d\mu}$$
+$$p(\mu|x1,\ldots,x_n;\sigma^2,a,b) = \frac{(\frac{1}{\sqrt{2\pi\sigma^2}})^n exp(\frac{-1}{2\sigma^2}\sum(x_i - \mu)^2)\frac{1}{b-a}}{\frac{1}{b-a}(\frac{1}{\sqrt{2\pi\sigma^2}})^n \int_a^b exp(\frac{-1}{2\sigma^2}\sum(x_i - \mu)^2) d\mu}$$
+Posterior PDF is also Normal Distribution.
+
+Ans.4 
+```{r}
+
+## Read in the cross-sectional OASIS data, including hippocampal volumes
+x = read.csv("./oasis_cross-sectional.csv")
+y = read.csv("./oasis_hippocampus.csv")
+hippo = merge(x, y, by = "ID")
+hippo = hippo[hippo$Age >= 60,]
+hippo$Group[hippo$CDR == 0.0] = "Control"
+hippo$Group[hippo$CDR == 0.5] = "Mild"
+hippo$Group[hippo$CDR >= 1.0] = "Dementia"
+
+def_mu_n <- function(lambda_0, mu_0, n, mean){
+  mu = (lambda_0*mu_0 + n*mean)/(n+lambda_0)
+  return(mu)
+}
+
+def_lambda_n <- function(n,lambda_0){
+  lambda = n + lambda_0
+  return(lambda)
+}
+
+def_alpha_n <- function(alpha_0, n){
+  alpha = alpha_0 + (n/2.0)
+  return(alpha)
+}
+
+def_beta_n <- function(beta_0, x_vec, mean, mu_0, n, lambda_0 ){
+  beta = beta_0 + sum((x_vec-mean)^2)/2.0 + (n* lambda_0/(n+lambda_0))*((mean-mu_0)^2/2.0)
+  return(beta)
+}
+
+#Sample sizes of the hippocampus data
+n_1 = length(hippo$Group[hippo$CDR == 0.0])
+n_2 = length(hippo$Group[hippo$CDR == 0.5])
+n_3 = length(hippo$Group[hippo$CDR >= 1.0])
+
+#Sample vector and their means
+x1<- hippo$RightHippoVol[hippo$CDR == 0.0]
+mean_1 = mean(x1)
+
+x2<- hippo$RightHippoVol[hippo$CDR == 0.5]
+mean_2 = mean(x2)
+
+x3<- hippo$RightHippoVol[hippo$CDR >= 1.0]
+mean_3 = mean(x3)
+
+# Conjugate Prior parameters
+lambda_0 = 10^(-6)
+mu_0 = 0
+alpha_0 = 10^(-6)
+beta_0 = 10^(-6)
+```
+a.)
+As I have conjugate prior of Normal Inverse Gamma Distribution(N-IG Distribution), my join posterior distribution will also be N-IG distribution with hyper parameters calculated below:
+
+```{r}
+# j=1, Control
+mu_1 = def_mu_n(lambda_0, mu_0,n_1, mean_1 )
+lambda_1 = def_lambda_n(n_1, lambda_0)
+alpha_1 = def_alpha_n(alpha_0, n_1)
+beta_1 = def_beta_n(beta_0, x1, mean_1,mu_0, n_1, lambda_0)
+
+# j=2, Mild
+mu_2 = def_mu_n(lambda_0, mu_0,n_2, mean_2 )
+lambda_2 = def_lambda_n(n_2, lambda_0)
+alpha_2 = def_alpha_n(alpha_0, n_2)
+beta_2 = def_beta_n(beta_0, x2, mean_2,mu_0, n_2, lambda_0)
+
+# j=3, Dementia
+mu_3 = def_mu_n(lambda_0, mu_0,n_3, mean_3 )
+lambda_3 = def_lambda_n(n_3, lambda_0)
+alpha_3 = def_alpha_n(alpha_0, n_3)
+beta_3 = def_beta_n(beta_0, x3, mean_3,mu_0, n_3, lambda_0)
+```
+
+Marginal Posterior of $P(\sigma_j^2|y_{i,j}) \sim IG(alpha_n,beta_n)$
+```{r}
+#install the below given library which is used to get random samples from inverse gamma distribution
+#install.packages("EDISON")
+library("EDISON")
+
+#Samples from marginal posterior distribution of sigma^2|y
+sample_sigma1 <- rinvgamma(10^6, alpha_1, beta_1)
+hist(sample_sigma1, freq=FALSE, breaks = 1000)
+lines(density(sample_sigma1),col="blue",lwd =3,xlab = expression(sigma^2))
+
+sample_sigma2 <- rinvgamma(10^6, alpha_2, beta_2)
+hist(sample_sigma2, freq=FALSE, breaks = 1000)
+lines(density(sample_sigma2),col="red",lwd =3,xlab = expression(sigma^2))
+
+sample_sigma3 <- rinvgamma(10^6, alpha_3, beta_3)
+hist(sample_sigma3, freq=FALSE, breaks = 1000)
+lines(density(sample_sigma3),col="green",lwd =3, xlab = expression(sigma^2))
+
+```
+
+Ans.4.b)
+Marginal Posterior of $\mu$ is a student-t distribution with $2*alpha_n$ degree of freedom with t values given as $ \sqrt{\frac{\alpha_n\lambda_n}{\beta_n}} (x - \mu) $.
+```{r}
+mu_seq = seq(2000,4000, (2000/10^6))
+
+#t-distribution for marginal probability of mu
+t = sqrt(alpha_1*lambda_1/beta_1)*(mu_seq-mean_1)
+plot(mu_seq,dt(t, 2*alpha_1), xlab = expression(mu))
+abline(v = mean_1)
+
+t2 = sqrt(alpha_2*lambda_2/beta_2)*(mu_seq-mean_2)
+lines(mu_seq, dt(t2, 2*alpha_2), col= "blue",lwd =2, xlab = expression(mu))
+abline(v = mean_2)
+
+t3 = sqrt(alpha_3*lambda_3/beta_3)*(mu_seq-mean_3)
+lines(mu_seq, dt(t3, 2*alpha_3), col= "red",lwd =2, xlab = expression(mu))
+abline(v = mean_3)
+
+legend('topleft', c("Control", "Mild", "Dementia"), col = c("black", "blue", "red"), lwd = 2)
+```
+
+Ans.4.c)
+Conditional density:
+\[P(d_12|\sigma_1^2,\sigma_2^2,y_{i,j}) \sim N(\mu_1|\sigma_1^2) - N(\mu_2|\sigma_2^2)\]
+So our, $d_12$ distribution will also be a normal distribution with $N(\mu,\sigma^2)$
+\[\mu = \mu_1 - \mu_2 \]
+\[\sigma^2 = \frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}\]
+
+```{r}
+sig_samp_1 <- rinvgamma(10^6, alpha_1, beta_1)
+sig_samp_2 <- rinvgamma(10^6, alpha_2, beta_2)
+sig_samp_3 <- rinvgamma(10^6, alpha_3, beta_3)
+
+post_var_12 <- sqrt(sig_samp_1/n_1 + sig_samp_2/n_2)
+post_var_13 <- sqrt(sig_samp_1/n_1 + sig_samp_3/n_3)
+post_var_23 <- sqrt(sig_samp_2/n_2 + sig_samp_3/n_3)
+
+post_mean_12 <- mu_1 - mu_2
+post_mean_13 <- mu_1 - mu_3
+post_mean_23 <- mu_2 - mu_3
+
+d_12 <- rnorm(10^6,  post_mean_12, post_var_12)
+d_13 <- rnorm(10^6,  post_mean_13, post_var_13)
+d_23 <- rnorm(10^6,  post_mean_23, post_var_23)
+
+n = 10^6
+pdf_d12 = sum(d_12<0)/n
+print(pdf_d12)
+pdf_d13 = sum(d_13<0)/n
+print(pdf_d13)
+pdf_d23 = sum(d_23<0)/n
+print(pdf_d23)
+
+```
+From the probabilities, we get that $P(d_12|y_{i,j})$ is almost $0$, which means $P(\mu_1<\mu_2|y_{i,j})$ is $0$. So we can say that the probabilities of $\mu_2$ being greater than $\mu_1$ is almost $0$.The same can be verified form the figure we have plotted in 4.b), where $\mu_1$ is mostly greater than $\mu_2$.
+Similiarly, we can compare $\mu_2$ and $\mu_3$, $\mu_2$ and $\mu_3$ has more overlapping in their graph, i.e, $P(\mu_2<\mu_3|y_{i,j})$ is relatively significant.
+
+Ans.4.d)
+```{r}
+# one sided t-test for the difference between the two means \mu_1 & \mu_2
+t.test(x1,x2,alternative = "greater" )
+# one sided t-test for the difference between the two means \mu_1 & \mu_3
+t.test(x1, x3, alternative = "greater" )
+# one sided t-test for the difference between the two means \mu_2 & \mu_3
+t.test(x2, x3, alternative = "greater" )
+```
+In statistics, the the p-value is defined as the probability of obtaining a result equal to or "more extreme" than what was actually observed, assuming that the null hypothesis is true.
+
+Here, The p-value is the measure of difference of mean of the two data sets. On comparing these p-values with the $P(d_12 < 0|y_{i,j})$ we can see that, they are roughly matching. Same analysis could be done for $P(d_13 < 0|y_{i,j})$ and $P(d_23 < 0|y_{i,j})$
+
+Ans.5.a)
+Joint Posterior Density: \[P(\mu_j,\sigma_j^2|y_{1,j}) = \sigma_j^{-n-2} exp^{-\frac{[(n-1)s^2+n(\bar(x)-\mu_j)^2]}{2\sigma_j^2}}\]
+Here, my sample mean and sample variance are given below respectively:
+\[s^2 = \frac{\sum_{i=1}^{n}(x_i-\bar(x))^2}{n}\]
+\[\bar(x) = \frac{\sum_{i=1}^{n} x_i}{n}\]
+Marginal Posterior of $P(\sigma_j^2|y_{i,j}) \sim IG(\frac{n}{2},\frac{ns^2}{2})$
+
+```{r}
+##  Marginal Posterior sigma using Jeffrey's Prior 5(a)
+
+jeff_1 <- rinvgamma(10^6, n_1/2, n_1*var(x1)/2)
+hist(jeff_1, freq = FALSE, breaks = 50)
+lines(density(jeff_1))
+
+jeff_2 <- rinvgamma(10^6, n_2/2, n_2*var(x2)/2)
+hist(jeff_2, freq = FALSE, breaks = 50)
+lines(density(jeff_2))
+
+jeff_3 <- rinvgamma(10^6, n_3/2, n_3*var(x3)/2)
+hist(jeff_3, freq = FALSE, breaks = 50)
+lines(density(jeff_3))
+
+```
+
+
+Ans.5.b)
+
+
+```{r}
+#data group j = 1
+#scale_1 = sqrt(var(x1))/n_1
+#shift_1 = mean_1
+#tVal_1 = rt(10^6, ncp = scale_1+ shift_1, df = n_1-1)
+
+#t_pdf_1 = dt(tVal_1, ncp = scale_1 + shift_1, df = n_1-1)
+#plot(tVal_1, t_pdf_1)
+#abline(v = mean_1)
+
+#data group j = 2
+#scale_2 = sqrt(var(x2))/n_2
+#shift_2 = mean_2
+#tVal_2 = rt(10^6, ncp = scale_2 + shift_2, df = n_2-1)
+
+#t_pdf_2 = dt(tVal_2, ncp = scale_2 + shift_2, df = n_2-1)
+#lines(tVal_2,t_pdf_2,col="red",lwd =3, xlab = expression(mu))
+#abline(v = mean_2)
+
+mu_seq = seq(2000,4000, (2000/10^6))
+
+t_pdf_1 =  abs(sqrt(alpha_1 * n_1/beta_1)) * dt(sqrt(alpha_1 * n_1/beta_1) * (mu_seq - mu_1), (2*alpha_1))
+plot(mu_seq, t_pdf_1)
+t_pdf_2 =  abs(sqrt(alpha_2 * n_2/beta_2)) * dt(sqrt(alpha_2 * n_2/beta_2) * (mu_seq - mu_2), (2*alpha_2))
+lines(mu_seq,t_pdf_2,col="blue",lwd =3, xlab = expression(mu))
+t_pdf_3 =  abs(sqrt(alpha_3 * n_3/beta_3)) * dt(sqrt(alpha_3 * n_3/beta_3) * (mu_seq - mu_3), (2*alpha_3))
+lines(mu_seq,t_pdf_3,col="red",lwd =3, xlab = expression(mu))
+
+legend('topleft', c("Control", "Mild", "Dementia"), col = c("black", "blue", "red"), lwd = 2)
+```
+
+
+Ans.5.c)
+Conditional Density will be calculated as:
+```{r}
+#Samples of sigma taken from posterior for j =1
+jeff_sigma_1 <- rinvgamma(10^6, n_1/2, n_1*var(x1)/2)
+
+#Samples of sigma taken from posterior for j =2
+jeff_sigma_2 <- rinvgamma(10^6, n_2/2, n_2*var(x2)/2)
+
+#Samples of sigma taken from posterior for j =3
+jeff_sigma_3 <- rinvgamma(10^6, n_3/2, n_3*var(x3)/2)
+
+post_jeff_var_512 <- sqrt(jeff_sigma_1/n_1 + jeff_sigma_2/n_2)
+post_jeff_var_513 <- sqrt(jeff_sigma_1/n_1 + jeff_sigma_3/n_3)
+post_jeff_var_523 <- sqrt(jeff_sigma_2/n_2 + jeff_sigma_3/n_3)
+
+#Mean calculation
+jeff_mu_51 = def_mu_n(0, 0,n_1, mean_1 )
+jeff_mu_52 = def_mu_n(0, 0,n_2, mean_2 )
+jeff_mu_53 = def_mu_n(0, 0,n_3, mean_3 )
+
+post_jeff_mean_512 <- jeff_mu_51 - jeff_mu_52
+post_jeff_mean_513 <- jeff_mu_51 - jeff_mu_53
+post_jeff_mean_523 <- jeff_mu_52 - jeff_mu_53
+
+d_512 <- rnorm(10^6,  post_jeff_mean_512, post_jeff_var_512)
+d_513 <- rnorm(10^6,  post_jeff_mean_513, post_jeff_var_513)
+d_523 <- rnorm(10^6,  post_jeff_mean_523, post_jeff_var_523)
+
+pdf_d512 = sum(d_512<0)/10^6
+print(pdf_d512)
+pdf_d513 = sum(d_513<0)/10^6
+print(pdf_d513)
+pdf_d523 = sum(d_523<0)/10^6
+print(pdf_d523)
+
+```
+
+Ans.6.
+This study is same as Q4, with different parameters for the model.
+\[\mu_0 = 2133\]
+\[\sigma_0 = 279\]
+\[n_0 = 127\]
+\[\alpha_0 = n_0/2\]
+\[\beta_0 = \frac{n_0 \sigma_0^2}{2}\]
+
+```{r}
+lambda_60 = 127
+mu_60 = 2133
+alpha_60 = 127/2
+beta_60 = 127*279^2/2
+```
+Ans.6.a.)
+As I have conjugate prior of Normal Inverse Gamma Distribution(N-IG Distribution), my join posterior distribution will also be N-IG distribution with hyper parameters calculated below:
+
+```{r}
+# j=1, Control
+mu_61 = def_mu_n(lambda_60, mu_60,n_1, mean_1 )
+lambda_61 = def_lambda_n(n_1, lambda_60)
+alpha_61 = def_alpha_n(alpha_60, n_1)
+beta_61 = def_beta_n(beta_60, x1, mean_1,mu_60, n_1, lambda_60)
+
+# j=2, Mild
+mu_62 = def_mu_n(lambda_60, mu_60,n_2, mean_2 )
+lambda_62 = def_lambda_n(n_2, lambda_60)
+alpha_62 = def_alpha_n(alpha_60, n_2)
+beta_62 = def_beta_n(beta_60, x2, mean_2,mu_60, n_2, lambda_60)
+
+# j=3, Dementia
+mu_63 = def_mu_n(lambda_60, mu_60,n_3, mean_3 )
+lambda_63 = def_lambda_n(n_3, lambda_60)
+alpha_63 = def_alpha_n(alpha_60, n_3)
+beta_63 = def_beta_n(beta_60, x3, mean_3,mu_60, n_3, lambda_60)
+
+```
+
+Marginal Posterior of $P(\sigma_j^2|y_{i,j}) \sim IG(alpha_n,beta_n)$
+```{r}
+sample_sigma61 <- rinvgamma(10^6, alpha_61, beta_61)
+hist(sample_sigma61, freq=FALSE, breaks = 1000)
+lines(density(sample_sigma61),col="blue",lwd =3, xlab = expression(sigma^2))
+
+sample_sigma62 <- rinvgamma(10^6, alpha_62, beta_62)
+hist(sample_sigma62, freq=FALSE, breaks = 1006)
+lines(density(sample_sigma62),col="red",lwd =3, xlab = expression(sigma^2))
+
+sample_sigma63 <- rinvgamma(10^6, alpha_63, beta_63)
+hist(sample_sigma63, freq=FALSE, breaks = 1000)
+lines(density(sample_sigma63),col="green",lwd =3, xlab = expression(sigma^2))
+
+```
+
+Ans.6.b)
+Marginal Posterior of $\mu$ is a student-t distribution with $2*alpha_n$ degree of freedom with t values given as $ \sqrt{\frac{\alpha_n\lambda_n}{\beta_n}} (x - \mu) $.
+```{r}
+mu_seq = seq(2000,4000, (1500/10^6))
+
+t61 = sqrt(alpha_61*lambda_61/beta_61)*(mu_seq-mean_1)
+plot(mu_seq,dt(t61, 2*alpha_61), xlab = expression(mu))
+abline(v = mean_1)
+
+t62 = sqrt(alpha_62*lambda_62/beta_62)*(mu_seq-mean_2)
+lines(mu_seq, dt(t62, 2*alpha_62), col= "blue",lwd =2, xlab = expression(mu))
+abline(v = mean_2)
+
+t63 = sqrt(alpha_63*lambda_63/beta_63)*(mu_seq-mean_3)
+lines(mu_seq, dt(t63, 2*alpha_63), col= "red",lwd =2, xlab = expression(mu))
+abline(v = mean_3)
+
+legend('topleft', c("Control", "Mild", "Dementia"), col = c("black", "blue", "red"), lwd = 2)
+```
+
+Ans.6.c)
+Conditional density:
+```{r}
+sig_samp_61 <- rinvgamma(10^6, alpha_61, beta_61)
+sig_samp_62 <- rinvgamma(10^6, alpha_62, beta_62)
+sig_samp_63 <- rinvgamma(10^6, alpha_63, beta_63)
+
+post_var_612 <- sqrt(sig_samp_61/n_1 + sig_samp_62/n_2)
+post_var_613 <- sqrt(sig_samp_61/n_1 + sig_samp_63/n_3)
+post_var_623 <- sqrt(sig_samp_62/n_2 + sig_samp_63/n_3)
+
+post_mean_612 <- mu_61 - mu_62
+post_mean_613 <- mu_61 - mu_63
+post_mean_623 <- mu_62 - mu_63
+
+d_612 <- rnorm(10^6,  post_mean_612, post_var_612)
+d_613 <- rnorm(10^6,  post_mean_613, post_var_613)
+d_623 <- rnorm(10^6,  post_mean_623, post_var_623)
+
+n = 10^6
+pdf_d612 = sum(d_612<0)/n
+print(pdf_d612)
+pdf_d613 = sum(d_613<0)/n
+print(pdf_d613)
+pdf_d623 = sum(d_623<0)/n
+print(pdf_d623)
+```
+In the initial $4^{th}$ question, our parameters were almost 0, hence the subsiquent information is affected by the initial parameters. This changes in result shows the effect of prior on the data analysis.
+
+As per the data analysis, this is not a good prior to use. The mean and variance samples from the marginal posterior distribution are no where near the sample mean and variance respectively. This shows that the prior information is biased.
+
+\emph{http://www.stat.umn.edu/geyer/5102/slides/s4.pdf}

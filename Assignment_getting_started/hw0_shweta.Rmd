@@ -1,0 +1,338 @@
+---
+title: "Homework 0"
+author: "Shweta Singhal"
+date: "January 24, 2016"
+output:
+  pdf_document: default
+  html_document: default
+---
+Ans. 1.  (a) \[E[E[X|Y]] = E[X]\]
+\[E[E[X|Y]] = \int\limits_{-\infty}^{+\infty}E[X|Y] p(y) \,dy\]
+\[ = \int\limits_{-\infty}^{+\infty} \int\limits_{-\infty}^{+\infty}x p(x|y) p(y) \,dx\,dy\]
+\[= \int\limits_{-\infty}^{+\infty} \int\limits_{-\infty}^{+\infty}x p(x,y) \,dx\,dy\]
+\[= \int\limits_{-\infty}^{+\infty} x\,dx\int\limits_{-\infty}^{+\infty} p(x,y) \,dy\]
+\[= \int\limits_{-\infty}^{+\infty} x p(x)\,dx\]
+\[= E[X]\]
+
+Ans. 1.  (b)
+\[Var(X) = E[Var(X|Y)] + Var(E[X|Y])\]
+$$
+\begin{aligned}
+  E[Var(X|Y)] &= E[E[X^2|Y]] - E[E[(X|Y)]^2]
+  & \text{}\\
+%
+&= E[X^2] - E[E[(X|Y)]^2] 
+  &\text{Using 1. (a) }\\
+%
+Var(E[X|Y]) &= E[E[X|Y]^2]- E[E[X|Y]]^2
+  &\text{}\\
+  %
+%
+&= E[E[X|Y]^2]- E[X]^2
+  &\text{Using 1. (a)}
+\end{aligned}
+$$
+
+Adding both,  \[Var(X) = E[X^2] - E[E[(X|Y)]^2] + E[E[X|Y]^2]- E[X]^2\]
+\[Var(X) = E[X^2] - E[X]^2\]
+Hence Proved.
+
+Ans 2.(a)
+$$
+\begin{aligned}
+  p(x) = \int\limits_{-\infty}^{+\infty}p(x,y)\,dy
+  & \text{}\\
+%
+&= \int\limits_{0}^{1}p(x,y)\,dy
+  &\text{ 0$\le$ x$\le$ 1, 0$\le$ y $\le$ 1 }\\
+%
+&= \int\limits_{0}^{1}(x+y)\,dy
+  &\text{As 0 $\le$ x $\leq$ 1, 0 $\le$ y $\leq$ 1 }\\
+%
+&= \left[ x.y + \frac{y^2}{2}\right]
+  &\text{}\\
+%
+&= x + \frac{1}{2}
+  &\text{}
+\end{aligned}
+$$
+
+Ans 2.(b)
+$$
+\begin{aligned}
+  p(y|x) = \frac{p(x,y)}{p(x)}
+  & \text{}\\
+%
+&= \frac{x+y}{x+\frac{1}{2}}
+  &\text{ 0 $\le$ x $\leq$ 1, 0 $\le$ y $\leq$ 1 }
+\end{aligned}
+$$
+
+Ans 2.(c)
+$$
+\begin{aligned}
+  E[Y|X] = \int\limits_{-\infty}^{+\infty} y p(y|x)\,dy
+  & \text{}\\
+%
+&= \int\limits_{0}^{1} y p(y|x)\,dy
+  &\text{  0$\le$ y $\le$ 1 }\\
+%
+&= \int\limits_{0}^{1}y. \frac{x+y}{x+\frac{1}{2}}\,dy
+  &\text{ 0 $\le$ y $\leq$ 1 }\\
+%
+&= \left[\frac{1}{x+\frac{1}{2}}\left[ x\frac{y^2}{2} + \frac{y^3}{3}\right]\right]
+  &\text{}\\
+%
+&= \frac{1}{6(x+\frac{1}{2})}(3x+2)
+  &\text{}
+\end{aligned}
+$$
+
+Ans 2.(d)
+$$
+\begin{aligned}
+  Cov(X,Y) = E[XY] - E[X]E[Y]
+  & \text{}\\
+%
+E[XY] &= \int\limits_{0}^{1} \int\limits_{0}^{1} xy p(x,y)\,dy \,dx
+  &\text{ 0$\le$ y $\le$ 1 , 0$\le$ y $\le$ 1 }\\
+%
+&= \int\limits_{0}^{1}y \,dy \int\limits_{0}^{1}x (x+y)\,dx
+  &\text{}\\
+%
+&= \int\limits_{0}^{1}y \left[\frac{x^3}{3} + \frac{y x^2}{2}\right]\,dy
+  &\text{}\\
+%
+&= \int\limits_{0}^{1}y \left[\frac{1}{3} + \frac{y}{2}\right]\,dy
+  &\text{}\\
+%
+&= \left[\frac{y^2}{6} + \frac{y^3}{6}\right]
+  &\text{}\\
+%
+&= \frac{1}{3}
+  &\text{}  
+\end{aligned}  
+$$
+$$
+\begin{aligned}
+E[X] E[Y] &= \int\limits_{0}^{1} x \left(x+\frac{1}{2}\right)\,dx \int\limits_{0}^{1} y \left(y+\frac{1}{2}\right) \,dy
+  &\text{ 0$\le$ y $\le$ 1 , 0$\le$ y $\le$ 1 }\\
+%
+&= \left[\frac{x^3}{3} + \frac{x^2}{4}\right] \left[\frac{y^3}{3} + \frac{y^2}{4}\right]
+  &\text{ 0$\le$ y $\le$ 1 , 0$\le$ y $\le$ 1 }\\
+%
+&= \left(\frac{7}{12}\right)^2
+  &\text{}
+\end{aligned}
+$$
+
+\[Cov(X,Y) = \frac{1}{3} - \left(\frac{7}{12}\right)^2\]
+
+Ans 3. (a)
+$$
+\begin{aligned}
+p(y) &= \left| \frac{d}{dy} f^{-1}(y)\right| \  p(f^{-1}(y))
+  &\text{}\\
+%
+&= \frac{d}{dy} y^2 . p(x)
+  &\text{}\\
+%
+&= \frac{d}{dy} y^2 . \lambda e^{-\lambda y^2}
+  &\text{}\\
+%
+&= 2\lambda y e^{-\lambda y^2}
+  &\text{}  
+\end{aligned}
+$$
+
+Ans 3. (b)
+$$
+\begin{aligned}
+F(y) &= P(Y \le y) = P(\sqrt(X) \le y)
+  &\text{}\\
+%
+&= \int\limits_{0}^{y^2}p(y) \,dy
+  &\text{Continuous points}\\
+%
+&= 2\lambda \int\limits_{0}^{y^2} y e^{-\lambda y^2} \,dy
+  &\text{}\\
+%
+&= \lambda \int\limits_{0}^{u} e^{-\lambda u} \,du
+  &\text{y^2 = u; 2ydy = du}\\  
+%
+&= \left[- e^{-\lambda u}\right]_{0}^{u} 
+  &\text{}\\
+%  
+&= \left[1- e^{-\lambda y^2}\right] 
+  &\text{ Replaceing u = y^2}
+\end{aligned}
+$$
+
+$$ F(y) = \left[1- e^{-\lambda y^2}\right] $$
+$$ F(0) = 1-1 = 0 $$
+$$ F(\infty) = 1-0 = 1 $$
+
+Ans 3. (c)
+$$
+\begin{aligned}
+F_{Y}(y) &= \left[1 - e^{-\lambda y^2}\right] = p 
+  &\text{Quantile Funtion}\\
+%
+& 1- p = e^{-\lambda Q^2} 
+  &\text{Continuous points; Q :Quantile function}\\
+%
+& \ln(1-p) = -\lambda Q^2
+  &\text{ Taking natural log}\\
+%
+& Q = \sqrt{-\frac{1}{\lambda}\ln(1-p)}
+  &\text{}
+\end{aligned}
+$$
+
+Ans 3. (d)
+$$
+\begin{aligned}
+E[Y] &= \int\limits_{0}^{+\infty} y p(y)\,dy
+  &\text{}\\
+%
+&= \int\limits_{0}^{+\infty}2\lambda y^2 e^{-\lambda y^2} \,dy
+  &\text{Putting P(y) from (b) part}\\
+%
+&= -[y e^{-\lambda y^2} - \int\limits_{0}^{+\infty} e^{-\lambda y^2} \,dy]
+  &\text{Integration by part ; g(y) = y; f(y) = $e^{-\lambda y^2}$}\\  
+%
+&= -[y e^{-\lambda y^2}]_{0}^{\infty} + \left[\frac{1}{2}\sqrt\frac{\pi}{\lambda}\right] 
+  &\text{Using Gaussian Integration}\\
+&= \frac{1}{2}\sqrt\frac{\pi}{\lambda}
+  &\text{}    \\  
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+E[X] &= \int\limits_{0}^{+\infty} x p(x)\,dx
+  &\text{}\\
+%
+&= \int\limits_{0}^{+\infty} x \lambda e^{-\lambda x} \,dx
+  &\text{}\\
+%
+&= -\left[x e^{-\lambda x} - \int\limits_{0}^{+\infty} e^{-\lambda x} \,dx\right]
+  &\text{Integration by parts}\\
+%
+&= -\left[x e^{-\lambda x} - \frac{e^{-\lambda x}}{\lambda}\right]_{0}^{+\infty}
+  &\text{}\\
+%
+&= \frac{1}{\lambda}
+  &\text{}  
+\end{aligned}
+$$
+
+$$Var[Y] = E[Y^2]- E[Y]^2$$
+$$ = E[X]- E[Y]^2$$
+$$ = \frac{1}{\lambda} - (\frac{1}{2}\sqrt\frac{\pi}{\lambda})^2$$
+$$ = \frac{1}{\lambda} - \frac{1}{4}\frac{\pi}{\lambda}$$
+
+Ans 4.)
+$$
+\begin{aligned}
+\mathcal{L}(\lambda) &= p_{Y_1, \ldots, Y_n}(y_1, y_2, \ldots, y_n; \lambda)
+  & \text{}\\
+%
+&= \prod_{i=1}^n p_{Y_i}(y_i; \lambda), 
+  &\text{using independence of the $Y_i$.}\\
+%
+&= \prod_{i=1}^n 2\lambda y e^{-\lambda y^2}
+  &\text{}\\  
+%
+&= 2^n \lambda^n \prod_{i=1}^n y \prod_{i=1}^n e^{-\lambda y^2}
+  &\text{}\\    
+%
+&= 2^n \lambda^n \prod_{i=1}^n y \ e^{\sum_{i=1}^n -\lambda y^2}
+  &\text{}\\    
+%
+& \ell(\lambda) = \ln \mathcal{L}(\lambda)
+ &\text{Taking natural logarithm}\\      
+%
+&= n \ln 2 + n \ln \lambda + \ln \prod_{i=1}^n y + \sum_{i=1}^n -\lambda y^2
+  &\text{}\\       
+%
+&= n \ln 2 + n \ln \lambda + \sum_{i=1}^n(\ln y) + \sum_{i=1}^n -\lambda y^2
+  &\text{}\\         
+%
+& \hat{\lambda} = \arg \max_{\lambda}\; \ell(\lambda)\\  
+%
+& 0 = \frac{d}{d\lambda}(\ell (\lambda))\\
+%
+& 0 = \frac{n}{\lambda} - \sum_{i=1}^{n}y_i^2\\
+%
+& \lambda = \frac{n}{\sum_{i=1}^{n}y_i^2}
+\end{aligned}
+$$
+
+Solving for $\lambda$, we get the sample mean as the MLE:
+$$\hat{\lambda} = \frac{n}{\sum_{i=1}^{n}y_i^2} $$
+
+Ans 5.)
+
+```{r}
+## Start by generating a sample from a random uniform distribtion
+n = 10000     ## Number of data points to generate
+minimum = 0     ## Minimum value
+maximum = 1  ## Maximum value
+
+x <- runif(n, min = minimum, max = maximum )
+
+## This sequence is for the x-axis in our plots
+t = sqrt(-1/2 *log(1-x))
+
+hist(t, freq = FALSE)
+
+y<- seq(0,10000,.01)
+
+# PDF function obtaind from Q.3 with value λ=2
+pd = 4*y*exp(-2*y*y)
+lines(y, pd, lwd = 2)
+
+# Mean of 10,000 realizations
+meanOfY <- mean(t)
+print(meanOfY)
+# Variance of 10,000 realizations
+varOfY <- var(t)
+print(varOfY)
+# Expectation obtained from Q 3.(c) with λ = 2
+expectation_Y = 1/2 * sqrt(pi/2)
+print(expectation_Y)
+# Variance obtained from Q 3.(c) with λ = 2
+variance_Y = 1/2 -(pi/8)
+print(variance_Y)
+
+```
+Both mean obtained from the realizations generated and E[Y] {expectation_Y} are approximately similiar.\\
+meanOfY $\approx$ E[Y]
+
+Both variance obtained from the realizations generated and Var[Y] {variance_Y} are approximately similiar.\\
+varOfY $\approx$ Var[Y]
+
+
+Ans 6.)
+```{r}
+qFunction <- function(n, lambda){
+  p = runif(n)
+  uniformRes = sqrt(-1/lambda *log(1-p))
+  return(uniformRes)
+}
+
+log_likelihood <- function(y, lambda){
+  n = length(y)
+  likelihood = n* log(2) + n*log(lambda) + sum(log(y)) - lambda*sum(y^2)
+  return(likelihood)
+}
+
+lambda = seq(0, 10, 0.0001)
+y = qFunction(20, 2)
+#y = seq(0,20,1)
+logY <- log_likelihood(y,lambda)
+plot(lambda, logY)
+expected_lambda = length(y)/sum(y^2)
+abline(v = expected_lambda)
+```
